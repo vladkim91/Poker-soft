@@ -84,8 +84,8 @@ dealCards(freshDeck, 2);
 dealFlop(freshDeck);
 dealTurn(freshDeck);
 dealRiver(freshDeck);
+
 console.log(player1, player2);
-// console.log(communityCards);
 
 function checkHand(hand, cc) {
   let combinedHand = hand.concat(cc.join(" ")).join(" ");
@@ -154,6 +154,36 @@ function checkHand(hand, cc) {
       }
     }
   }
+  function customSort(sortedArray) {
+    var tempPlaceHolder = [];
+        for (let i = 0; i < sortedArray.length; i++) {
+        // Loop for numbers
+        if (isNaN(sortedArray[i][0]) != true) {
+          tempPlaceHolder.push(sortedArray[i][0]);
+        }
+        // Loop for letters
+        // Push T J Q K A to tempPlaceHolder
+      }
+      let letterCards = ["T", "J", "Q", "K", "A"];
+
+      // Push spliced element into tempPlaceHolder function
+      function pushTJQKA(card, t) {
+        for (let i = 0; i < sortedArray.length; i++) {
+          if (isNaN(card[i][0]) != false && card[i][0] == t) {
+            tempPlaceHolder.push(card[i][0]);
+          }
+        }
+      }
+      for (let i = 0; i < letterCards.length; i++) {
+        pushTJQKA(sortedArray, letterCards[i]);
+      }
+     
+      let noDuplicateTemp = [...new Set(tempPlaceHolder)];
+      if (noDuplicateTemp[noDuplicateTemp.length - 1] == "A") noDuplicateTemp.unshift("A")
+      
+      
+      return noDuplicateTemp;
+  }
   function checkStraight(hand) {
     // Check for straight
     // 14 cards without suits with A in the beginning
@@ -169,74 +199,14 @@ function checkHand(hand, cc) {
 
     var sortedCombinedHandArray = [...hand].sort();
     // Sort player + communityCards
-    function customSort(sortedArray, kindOfStraight) {
-      var tempPlaceHolder = [];
-      // If regular straight
-      if (kindOfStraight == "regular") {
-        for (let i = 0; i < sortedArray.length; i++) {
-          // Loop for numbers
-          if (isNaN(sortedArray[i][0]) != true) {
-            tempPlaceHolder.push(sortedArray[i][0]);
-          }
-          // Loop for letters
-          // Push T J Q K A to tempPlaceHolder
-        }
-        let letterCards = ["T", "J", "Q", "K", "A"];
 
-        // Push spliced element into tempPlaceHolder function
-        function pushTJQKA(card, t) {
-          for (let i = 0; i < sortedArray.length; i++) {
-            if (isNaN(card[i][0]) != false && card[i][0] == t) {
-              tempPlaceHolder.push(card[i][0]);
-            }
-          }
-        }
-        for (let i = 0; i < letterCards.length; i++) {
-          pushTJQKA(sortedArray, letterCards[i]);
-        }
-        // remove duplicates for reg straight
-        let noDuplicateTemp = [...new Set(tempPlaceHolder)];
-        noDuplicateTemp.unshift("A");
-        // console.log(noDuplicateTemp);
-        return noDuplicateTemp;
-        // else if straight flush
-      } else if (kindOfStraight == "flush") {
-        for (let i = 0; i < sortedArray.length; i++) {
-          // Loop for numbers
-          if (isNaN(sortedArray[i][0]) != true) {
-            tempPlaceHolder.push(sortedArray[i]);
-          }
-        }
-        // Loop for letters
-        // Push T J Q K A to tempPlaceHolder
-        let letterCards = ["T", "J", "Q", "K", "A"];
-
-        // Push spliced element into tempPlaceHolder function
-        function pushTJQKA(card, t) {
-          for (let i = 0; i < sortedArray.length; i++) {
-            if (isNaN(card[i][0]) != false && card[i][0] == t) {
-              tempPlaceHolder.push(card[i]);
-            }
-          }
-        }
-        for (let i = 0; i < letterCards.length; i++) {
-          pushTJQKA(sortedArray, letterCards[i]);
-          // console.log(sortedArray);
-        }
-
-        // console.log(tempPlaceHolder);
-      }
-    }
     let slicedArrayOfFive;
     for (let i = 0; i < 10; i++) {
       var tempArrayOfFive = [];
       tempArrayOfFive.push(thirteenCardsWithoutSuit.slice(i, i + 5));
 
       for (let n = 0; n < 4; n++) {
-        slicedArrayOfFive = customSort(
-          sortedCombinedHandArray,
-          "regular"
-        ).slice(n, n + 5);
+        slicedArrayOfFive = customSort(sortedCombinedHandArray).slice(n, n + 5);
 
         if (slicedArrayOfFive.toString() == tempArrayOfFive.toString()) {
           madeHands.hasStraight = true;
@@ -257,20 +227,21 @@ function checkHand(hand, cc) {
     }
 
     if (
-      suitCounter.hearts == 5 ||
-      suitCounter.spades == 5 ||
-      suitCounter.clubs == 5 ||
-      suitCounter.diamonds == 5
+      suitCounter.hearts >= 5 ||
+      suitCounter.spades >= 5 ||
+      suitCounter.clubs >= 5 ||
+      suitCounter.diamonds >= 5
     ) {
       madeHands.hasFlush = true;
       madeHands.handStrength = 5;
-    }
-    for (i = 0; i < Object.values(suitCounter).length; i++) {
-      if (Object.values(suitCounter)[i] > 4) {
-        typeOfFlush = Object.keys(suitCounter)[i]
+      for (i = 0; i < Object.values(suitCounter).length; i++) {
+        if (Object.values(suitCounter)[i] > 4) {
+          madeHands.typeOfFlush = Object.keys(suitCounter)[i]
+        }
       }
+      console.log(madeHands.typeOfFlush)
     }
-    console.log(suitCounter.typeOfFlush)
+    
     
   }
   function checkFullHouse() {
@@ -299,6 +270,83 @@ function checkHand(hand, cc) {
     }
   }
 
+  function checkStraightRoyalFlush(hand) {
+    var tempFlush =[];
+    if (madeHands.hasStraight && madeHands.hasFlush) { 
+      switch (madeHands.typeOfFlush) {
+        case "hearts": {
+          for (i = 0; i < hand.length; i++) {
+            if (hand[i][1] == "H") tempFlush.push(hand[i])
+          }
+          break;
+        };
+        case "spades": {
+          for (i = 0; i < hand.length; i++) {
+            if (hand[i][1] == "S") tempFlush.push(hand[i])
+          }
+          break;
+        };
+        case "clubs": {
+          for (i = 0; i < hand.length; i++) {
+            if (hand[i][1] == "C") tempFlush.push(hand[i])
+          }
+          break;
+        };
+        case "diamonds": {
+          for (i = 0; i < hand.length; i++) {
+            if (hand[i][1] == "D") tempFlush.push(hand[i])
+          }
+          break;
+        };
+      }
+      
+      let thirteenCardsInOrder = createDeck().slice(0, 13);
+      let thirteenCardsWithCustomSuit = [];
+      thirteenCardsInOrder.forEach(removeSuit);
+      function removeSuit(item, index, arr) {
+        thirteenCardsWithCustomSuit.push(item[0]+madeHands.typeOfFlush[0].toUpperCase());
+      }
+      thirteenCardsWithCustomSuit.unshift("A" + madeHands.typeOfFlush[0].toUpperCase())
+      
+      var sortedCombinedHandArray = [...tempFlush].sort();
+      if (tempFlush[tempFlush.length - 1][0] == "A") {
+        sortedCombinedHandArray.unshift("A" + madeHands.typeOfFlush[0].toUpperCase())
+      }
+      
+      let sortedStraighFlush = customSort(sortedCombinedHandArray)
+      for (let i = 0; i < sortedStraighFlush.length; i++) {
+        sortedStraighFlush[i] = sortedStraighFlush[i] + madeHands.typeOfFlush[0].toUpperCase()
+      }
+    
+      let slicedArrayOfFive;
+      for (let i = 0; i < 10; i++) {
+        var tempArrayOfFive = [];
+        tempArrayOfFive.push(thirteenCardsWithCustomSuit.slice(i, i + 5));
+                
+        for (let n = 0; n < 3; n++){
+          slicedArrayOfFive = sortedStraighFlush.slice(n, n + 5);
+          
+          if (i != 9) {
+            if (slicedArrayOfFive.toString() == tempArrayOfFive.toString()) {
+            madeHands.hasStraightFlush = true;
+            madeHands.handStrength = 8;
+            
+          }
+          } else {
+            if (slicedArrayOfFive.toString() == tempArrayOfFive.toString()) {
+              madeHands.hasStraightFlush = true;
+              madeHands.hasRoyalFlush = true;
+              madeHands.handStrength = 9;
+            }
+          }
+        }
+        
+      }
+    }
+      
+
+  } 
+  
   checkPair(combinedHandArray);
   checkTwoPair(combinedHandArrayClone);
   checkThreeOfaKind(combinedHandArray);
@@ -306,14 +354,14 @@ function checkHand(hand, cc) {
   checkFlush(combinedHandArray);
   checkFullHouse();
   checkFourOfaKind(combinedHandArray);
+  checkStraightRoyalFlush(combinedHandArray)
 
   // Log madeHands bools
-  // console.log(madeHands);
 
-  // Display current hand
-  console.log(combinedHandArray);
+  console.log(combinedHandArray)
+  console.log(madeHands)
   console.log("Hand strenght: " + madeHands.handStrength);
-  // console.log(madeHands);
+
   return madeHands;
 }
 // const playerOneHandStrenght = checkHand(player1, communityCards).handStrength;
@@ -324,16 +372,23 @@ function checkHand(hand, cc) {
 // } else if (playerTwoHandStrenght > playerOneHandStrenght) {
 //   console.log("Player 2 wins");
 // }
-// checkHand(player2, communityCards);
+checkHand(player1, communityCards);
+checkHand(player2, communityCards);
+
+
 // check;
 // check Straight
 // checkHand(["QH", "AC"], ["KD", "JD", "TS", "AD", "8C"]);
 // check Full house
 // checkHand(["QH", "AC"], ["KD", "AD", "TS", "AD", "QC"]);
 // check Flush
-checkHand(["QH", "AH"], ["KH", "2H", "TH", "AD", "QC"]);
+// checkHand(["QH", "AD"], ["KD", "2H", "TD", "AD", "QD"]);
 // check Four of a kind
 // checkHand(["QH", "AC"], ["AD", "KH", "AS", "AD", "8C"]);
+// check Straigh & Royal Flush
+checkHand(["TD", "QD"], ["JD", "KD", "7S", "AD", "7C"])
+
+
 // const playerOne = new player();
 // playerOne.bank = 10;
 // console.log(playerOne);
